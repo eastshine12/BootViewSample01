@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+	<table class="table table-bordered">
+		<tr>
+			<th>아이디</th>
+			<td style="text-align: left;">
+				<input type="text" id="_id" name="id" readonly="readonly" size="50">
+			</td>
+		</tr>
+		<tr>
+			<th>제목</th>
+			<td style="text-align: left;">
+				<input type="text" id="_title" name="title" readonly="readonly" size="50">
+			</td>
+		</tr>
+		<tr>
+			<th>파일</th>
+			<td style="text-align: left;" id="fileName">
+				<img alt="" src="">
+				<input type="button" id="_btnDown" class="btn btn-info" value="다운로드">
+			</td>
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td>
+				<textarea rows="10" cols="50" id="_content" name="content" readonly="readonly"></textarea>
+			</td>
+		</tr>
+		<tr id="myBtn">
+			<td colspan="2" style="height: 50px; text-align: center;">
+				<input type="button" class="btn btn-secondary" id="updateBtn" value="수정" onclick="updatePage()">
+				<input type="button" class="btn btn-secondary" id="deleteBtn" value="삭제" onclick="deletePage()">
+				<input type="button" class="btn btn-secondary" value="목록" onclick="location.href='pdsList.html'">
+			</td>
+		</tr>
+	</table>
+	
+	
+	
+</div>
+
+
+<script type="text/javascript">
+
+$('#myBtn').hide();
+
+let sessionId = sessionStorage.getItem("login");
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+let seq = getParameter("seq");
+
+$(document).on('click','#_btnDown', function() {
+	location.href = "http://localhost:3000/fileDownload?fileName="+$(this).attr('name');
+});	
+
+
+$.ajax({
+	url:"http://192.168.0.231:3000/getPdsDetail",
+	type:"post",
+	data:{seq:seq},
+	success:function(data){
+		$('#_id').val(data.id);
+		$('#_title').val(data.title);
+		$('#fileName').append(data.filename);
+		$('#_content').text(data.content);
+		$('#_btnDown').attr("name", data.newFilename);
+		$('img').attr("src", "http://localhost:3000/upload/"+data.newFilename);
+		
+		if(sessionId == data.id) {
+			$('#myBtn').show();
+		} else {
+			$('#youBtn').show();
+		}
+	},
+	error:function(){
+		alert("error");
+	}
+});
+
+function updatePage() {
+	location.href='pdsUpdate.html?seq='+seq;
+}
+
+
+function deletePage() {
+	 if (confirm("정말 삭제하시겠습니까?") == true){    //확인
+		 
+		 $.ajax({
+			 url:"http://192.168.0.231:3000/deletePds",
+				type:"post",
+				data:{seq:seq},
+				success:function(data){
+					if(data=="suc") {
+						alert('정상적으로 삭제되었습니다.');
+						location.href="pdsList.html";
+					}
+				},
+				error:function(){
+					alert("error");
+				}
+			 
+		 });
+		 
+	 }else{   //취소
+	     return false;
+	 }
+}
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+<title>게시판</title>
+</head>
+<body>
+<div align="center">
+	<input type="hidden" name="seq" value="<%=bbs.getSeq() %>">
+	<table border="1">
+		<col width="200"><col width="500">
+		<tr>
+			<td>아이디</td>
+			<td>
+				<input type="text" name="id" size="50" readonly="readonly" id="_id">
+			</td>
+		</tr>
+		<tr>
+			<td>제목</td>
+			<td>
+				<input type="text" name="title" size="50" id="_title">
+			</td>
+		</tr>
+		<tr>
+			<td>내용</td>
+			<td>
+				<textarea rows="10" cols="50" name="content" id="_content"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<input type="button" value="답글작성완료" id="btn">
+			</td>
+		</tr>
+	</table>
+</div>
+
+<script type="text/javascript">
+
+let sessionId = sessionStorage.getItem("login");
+$('#_id').val(sessionId);
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+let seq = getParameter("seq");
+
+$(function () {
+	$('#btn').click(function() {
+		$.ajax({
+			url:"http://192.168.0.231:3000/answer",
+			type:"post",
+			data:{
+					"id":sessionId,
+					"seq":seq,
+					"title":$('#_title').val(),
+					"content":$('#_content').val()
+				},
+			success:function(data){
+  				if(data == "suc") {
+					alert("작성 완료");
+					location.href = "bbsList.html";
+				}
+				else {
+					alert("작성 실패");
+				}  
+				
+			},
+			error:function(){
+				alert("error");
+			}
+		});
+		
+	});
+	
+});
+
+
+
+</script>
+
+
+</body>
+</html>

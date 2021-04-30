@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+</head>
+<body>
+
+<br>
+<h2 align="center">글 작성</h2>
+<br>
+<div align="center">
+	<table class="table table-bordered" border ="1" >
+		<tr>
+			<th>아이디</th>
+			<td style="padding-left: 10px" id="userId"></td>
+		</tr>
+		<tr>
+			<th>제목</th>
+			<td>
+			<input type="text" size="50" id="_title" name="title">
+			</td>
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td>
+			<textarea rows="20" cols="100" id="_content" name="content"></textarea>
+			</td>
+		</tr>
+	
+	</table>
+	<br><br>
+<input type="submit" id="btn" class="btn btn-primary" value="글추가">
+<input type="button" class="btn btn-secondary" value="뒤로" onclick="backPage()">
+</div>
+
+
+
+
+<script type="text/javascript">
+
+let sessionId = sessionStorage.getItem("login");
+$('#userId').text(sessionId);
+
+
+$(function () {
+	$('#btn').click(function() {
+		$.ajax({
+			url:"http://192.168.0.231:3000/write",
+			type:"post",
+			data:{
+					"id":sessionId,
+					"title":$('#_title').val(),
+					"content":$('#_content').val()
+				},
+			
+			success:function(data){
+  				if(data == "suc") {
+					alert("작성 완료");
+					location.href = "bbsList.html";
+				}
+				else {
+					alert("작성 실패");
+				}  
+				
+			},
+			error:function(){
+				alert("error");
+			}
+		});
+		
+	});
+	
+});
+
+
+
+
+function backPage() {
+	location.href = "bbsList.html";
+}
+
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+<title>게시판</title>
+<!-- Pagination -->
+<script type="text/javascript" src="./jquery/jquery.twbsPagination.min.js"></script>
+
+</head>
+<body>
+
+<h1 align="center" style="margin: 10px;">게시판</h1>
+
+<div class="form-control" align="center">
+	<button type="button" class="btn btn-info btn-lg" onclick="location.href='bbsList.html'">게시판</button>
+	<button type="button" class="btn btn-info btn-lg" onclick="location.href='./pds/pdsList.html'">자료실</button>
+	<button type="button" class="btn btn-info btn-lg" onclick="location.href='./summer/summerList.html'">썸머노트게시판</button>
+	<br>
+</div>
+
+<!-- 검색 -->
+<div class="row" style="float: right;">
+	<select name="choice" id="_choice" class="form-control"  style="width: 100px">
+		<option value="" selected="selected">선택</option>	
+		<option value="TITLE">제목</option>
+		<option value="CONTENT">내용</option>
+		<option value="ID">작성자</option>
+	</select>&nbsp;
+	
+	<div class="col-xs-3">
+ 	<input type="search" class="form-control" name="search" id="_search">
+	</div>&nbsp;
+	<input type="button" value="검색" class="btn btn-primary" id="btnSearch">
+
+</div>
+<br><br>
+
+
+<table class="table table-hover" id="_list_table" style="width: 1000px">
+	<colgroup>
+		<col style="width:70px">
+		<col style="width:auto">
+		<col style="width:100px">
+	</colgroup>	
+	
+	<tr>
+		<th>번호</th><th>제목</th><th>작성자</th>
+	</tr>
+	
+</table>
+ 
+ 
+ 
+<!-- Pagination -->
+<div class="container">
+	<nav aria-label="Page navigation">
+		<ul class="pagination" id="pagination" style="justify-content:center;"></ul>
+	</nav>
+</div>
+ 
+ 
+
+
+<!-- 글쓰기, 목록보기 버튼 -->
+<br><br>
+
+<div class="row text-center" style="width:100%">
+	<div style="width: 30%; float: none; margin: 0 auto">
+		<input type="button" class="btn btn-secondary" value="글쓰기" onclick="goWrite()">
+		<input type="button" class="btn btn-secondary" value="전체목록" onclick="goMain()">
+	</div>	
+</div>
+
+
+
+
+<script>
+
+
+getbbsListData(0);
+getBbsListCount();
+
+
+$(document).on("click", "#btnSearch", function () {
+	
+	getbbsListData(0);
+	getBbsListCount();
+});
+
+
+// bbslist를 취득
+function getbbsListData(pNumber) {
+	
+	$.ajax({
+		url:"http://192.168.0.231:3000/bbsList",
+		type:"get",
+		data:{
+			choice:$('#_choice').val(),
+			search:$('#_search').val(),
+			page:pNumber
+		},
+		success:function(list){
+			//alert('success');
+			
+			$('.list_col').remove();
+			
+			let app = ""
+		 	
+			if (Object.keys(list).length == 0) {	// JSON형식의 길이
+			
+				app += "<tr class='list_col'>"
+				       +"<td colspan='3'>검색 결과가 없습니다.</td>"
+				       + "</tr>";
+				       
+				$("#_list_table").append(app);
+				
+			} else {
+				
+				$.each(list, function (i, val) {
+			
+					app += "<tr class='list_col'>"
+								+ "<td>" + (i + 1) + "</td>"
+								+ "<td style='text-align:left'>"
+								+ getArrow(val.depth)
+								+ " <a href='bbsDetail.html?seq=" + val.seq + "'>" + val.title + "</a>"
+								+ "</td>"
+								+ "<td>" + val.id + "</td>"
+								+ "</tr>";
+								
+				}); 
+					
+				$("#_list_table").append(app);
+			}
+			
+		},
+		error:function(){
+			alert('error');
+		}
+	});
+};
+
+
+
+// 글의 총수를 취득
+function getBbsListCount() {
+	
+ 	$.ajax({
+		url:"http://192.168.0.231:3000/bbsCount",
+		type:"get",
+		data:{
+			choice:$('#_choice').val(),
+			search:$('#_search').val(),
+			page:0
+		},
+		success:function(count){
+			bbsCount = count;
+			loadPage(count);
+			//alert(count);
+		},
+		error:function(){
+			alert('총수 error');
+		}
+	}); 
+	
+};
+
+// paging 처리
+function loadPage(totalCount) {
+	
+	let pageSize = 10;
+	let nowPage = 1;
+	let _totalPages = Math.floor(totalCount / pageSize);
+	if(totalCount % pageSize > 0){
+		_totalPages++;
+	}
+
+	$("#pagination").twbsPagination('destroy');	// 데이터가 갱신되면 페이징 갱신
+	
+	
+ 	$("#pagination").twbsPagination({
+	//	startPage: 1,
+		totalPages: _totalPages,
+		visiblePages: 10,
+		first:'<span aria-hidden="true">«</span>',
+		prev:"이전",
+		next:"다음",
+		last:'<span aria-hidden="true">»</span>',
+		initiateStartPageClick:false,		// onPageClick 자동 실행되지 않도록 한다
+		onPageClick:function(event, page){
+			nowPage = page;
+			getbbsListData( page - 1 );
+		},
+	});	
+ 	
+ 	//$("#pagination").twbsPagination('changeTotalPages', _totalPages, nowPage);
+	
+};
+
+
+function goWrite() {
+	location.href = "bbsWrite.html";
+};
+
+function goMain() {
+	location.href = "bbslist.do";
+};
+
+
+
+function getArrow(depth) {
+	
+	var rs = "<img src='./image/arrow.png' width='12px' heiht='12px'/>";
+	var nbsp = "&nbsp;&nbsp;&nbsp;&nbsp;";	// 여백
+	
+	var ts = "";
+	for(var i = 0;i < depth; i++){
+		ts += nbsp;
+	}
+	
+	return depth==0?"":ts + rs;	
+};
+
+
+
+</script>
+
+
+</body>
+</html>

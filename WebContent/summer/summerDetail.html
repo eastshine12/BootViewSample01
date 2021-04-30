@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+</head>
+<body>
+
+<div align="center">
+	<table class="table table-bordered" border ="1" >
+		<col width="100px"><col width="500px">
+		<tr>
+			<th>ID</th>
+			<td style="padding-left: 10px" id="_id"></td>
+		</tr>
+		<tr>
+			<th>작성날짜</th>
+			<td style="padding-left: 10px" id="_wdate"></td>
+		</tr>
+		<tr>
+			<th>제목</th>
+			<td style="padding-left: 10px" id="_title"></td>
+		</tr>
+		<tr>
+			<th>조회수</th>
+			<td style="padding-left: 10px" id="_readcount"></td>
+		</tr>
+		<tr>
+			<th>정보</th>
+			<td style="padding-left: 10px"></td>
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td>
+			<textarea rows="20" cols="100" name="content" id="_content" readonly></textarea>
+			</td>
+		</tr>
+	
+	</table>
+
+	<br><br>
+	
+	<div id="myBtn">
+		<button type="button" id="repleBtn" class="btn btn-secondary" onclick="answerBbs()">답글</button>
+		<input type="button" id="delBtn" class="btn btn-secondary" value="글삭제" onclick="deletePage()">
+		<input type="button" id="updateBtn" class="btn btn-secondary" value="글수정" onclick="updatePage()">
+		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='bbsList.html'">
+	</div>
+	
+	<div id="youBtn">
+		<button type="button" class="btn btn-secondary" onclick="answerbbs('<%=bbs.getSeq() %>')">답글</button>
+		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='bbsList.html'">
+	</div>
+	
+</div>
+
+
+<script type="text/javascript">
+
+$('#myBtn').hide();
+$('#youBtn').hide();
+
+let sessionId = sessionStorage.getItem("login");
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+
+/*  강사님이 준 파라미터 값 받는 방법
+let urlParams = location.search.split(/[?&]/).slice(1).map(function(paramPair) {
+    return paramPair.split(/=(.+)?/).slice(0, 2);
+}).reduce(function(obj, pairArray) {
+    obj[pairArray[0]] = pairArray[1];
+    return obj;
+}, {});
+ */
+
+let seq = getParameter("seq");
+
+
+$.ajax({
+	url:"http://192.168.0.231:3000/detailSummer",
+	type:"post",
+	data:{seq:seq},
+	success:function(data){
+		$('#_id').text(data.id);
+		$('#_wdate').text(data.wdate);
+		$('#_readcount').text(data.readcount);
+		$('#_title').text(data.title);
+		$('#_content').text(data.content);
+		
+		if(sessionId == data.id) {
+			$('#myBtn').show();
+		} else {
+			$('#youBtn').show();
+		}
+		
+		
+	},
+	error:function(){
+		alert("error");
+	}
+});
+
+
+function deletePage() {
+	 if (confirm("정말 삭제하시겠습니까?") == true){    //확인
+		 
+		 $.ajax({
+			 url:"http://192.168.0.231:3000/delete",
+				type:"post",
+				data:{seq:seq},
+				success:function(data){
+					if(data=="suc") {
+						alert('정상적으로 삭제되었습니다.');
+						location.href="bbsList.html";
+					}
+				},
+				error:function(){
+					alert("error");
+				}
+			 
+		 });
+		 
+	 }else{   //취소
+	     return false;
+	 }
+}
+
+function updatePage() {
+	location.href='bbsUpdate.html?seq='+seq;
+}
+
+function answerBbs() {
+	location.href='bbsAnswer.html?seq='+seq;
+}
+
+
+</script>
+
+
+
+</body>
+</html>

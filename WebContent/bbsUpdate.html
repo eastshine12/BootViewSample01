@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+</head>
+<body>
+<div align="center">
+	<input type="hidden" name="seq" value="<%=bbs.getSeq() %>">
+	<table class="table" border ="1" >
+		<tr>
+			<th>아이디</th>
+			<td style="padding-left: 10px" id="_id"></td>
+		</tr>
+		<tr>
+			<th>제목</th>
+			<td>
+			<input type="text" size="50" id="_title" name="title">
+			</td>
+		</tr>
+		<tr>
+			<th>내용</th>
+			<td>
+			<textarea rows="20" cols="100" id="_content" name="content"></textarea>
+			</td>
+		</tr>
+	
+	</table>
+	<br><br>
+<input type="button" id="updateBtn" class="btn btn-primary" value="글수정">
+<input type="button" value="취소" class="btn btn-secondary" onclick="backPage()">
+</div>
+
+
+
+<script type="text/javascript">
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+let seq = getParameter("seq");
+
+
+$.ajax({
+	url:"http://192.168.0.231:3000/detail",
+	type:"post",
+	data:{seq:seq},
+	success:function(data){
+		$('#_id').text(data.id);
+		$('#_title').val(data.title);
+		$('#_content').val(data.content);
+		
+		if(sessionId == data.id) {
+			$('#myBtn').show();
+		} else {
+			$('#youBtn').show();
+		}
+	},
+	error:function(){
+		alert("error");
+	}
+});
+
+
+$(document).on("click","#updateBtn", function() {
+	
+	$.ajax({
+		url:"http://192.168.0.231:3000/update",
+		type:"post",
+		data:{
+			seq:seq,
+			title:$('#_title').val(),
+			content:$('#_content').val()
+			},
+		success:function(data){
+			if(data == "suc") {
+				alert('성공적으로 수정되었습니다.');
+				location.href="bbsDetail.html?seq="+seq;
+			} else {
+				alert('수정 실패하였습니다.');
+			}
+		},
+		error:function(){
+			alert("error");
+		}
+	});
+	
+	
+});
+
+
+
+function backPage() {
+	location.href = "bbsList.html";
+}
+
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+<title>게시판</title>
+<style type="text/css">
+body::before{
+	
+}
+
+.main {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.main::after {
+  width: 100%;
+  height: 100%;
+  content: "";
+  background-image:url('../image/bono.jpg');
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  opacity: 0.35;
+}
+
+</style>
+</head>
+<body>
+
+<div class="main">
+
+	<h1 align="center" style="margin: 10px;">자료실</h1>
+	
+	<div class="form-control" align="center">
+		<button type="button" class="btn btn-info btn-lg" onclick="location.href='../bbsList.html'">게시판</button>
+		<button type="button" class="btn btn-info btn-lg" onclick="location.href='./pdsList.html'">자료실</button>
+		<br>
+	</div>
+	<br><br><br>
+	
+	
+	<div class="container-fluid">
+		<table class="table table-bordered">
+			<colgroup>
+				<col width="50">
+				<col width="100">
+				<col width="300">
+				<col width="50">
+				<col width="50">
+				<col width="50">
+				<col width="100">
+				<col width="50">
+			</colgroup>
+			<thead class="thead-dark">
+				<tr>
+					<th>번호</th>
+					<th>작성자</th>
+					<th>제목</th>
+					<th>다운로드</th>
+					<th>조회수</th>
+					<th>다운로드수</th>
+					<th>작성일</th>
+					<th>삭제</th>
+				</tr>	
+			</thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+	</div>
+	
+	
+	<div id="button.wrap" align="center">
+		<button class="btn btn-primary" type="button" id="_btnAdd">자료추가</button>
+	</div>
+	
+	
+	<!-- 다운로드 버튼 클릭 -->
+	<form name="file_Down" action="fileDownload.do" method="post">
+		<input type="hidden" name="newFilename">
+		<input type="hidden" name="seq">
+	</form>
+
+
+</div>
+
+<script>
+
+$('#_btnAdd').click(function() {
+	location.href = "pdsWrite.html";
+});
+
+getpdsListData(0);
+	
+function getpdsListData(pNumber) {
+	
+	$.ajax({
+		url:"http://192.168.0.231:3000/getPdsList",
+		type:"get",
+		success:function(list){
+			//alert('success');
+			console.log(list);
+			
+			$('.list_col').remove();
+			
+			let app = ""
+		 	
+			if (Object.keys(list).length == 0) {	// JSON형식의 길이
+			
+				app += "<tr class='list_col'>"
+				       +"<td colspan='3'>검색 결과가 없습니다.</td>"
+				       + "</tr>";
+				       
+				$("#tbody").append(app);
+				
+			} else {
+				
+				$.each(list, function (i, val) {
+			
+					app += "<tr>"
+						+ "<th>"+(i+1)+"</th>"
+						+ "<td>"+val.id+"</td>"
+						+ "<td style='text-align: left;'><a href='pdsDetail.html?seq="+val.seq+"'><b>"+val.title+"</b></a></td>"
+						+ "<td><input type='button' name='btnDown' class='btn btn-outline-info' value='다운로드' id='"+val.newFilename+"' onclick='fileDown('"+val.newFilename+"', '"+val.seq+"')'></td>"
+						+ "<td>" +val.readcount+ "</td>"
+						+ "<td>" +val.downcount+ "</td>"
+						+ "<td><font size='2'>"+val.regdate+"</font></td>"
+						+ "<td><button type='button' class='btn btn-danger' onclick='deletePage("+val.seq+")'>삭제</button></td>"
+					+ "</tr>";
+							
+				}); 
+				$("tbody").append(app);
+			}
+			
+		},
+		error:function(){
+			alert('error');
+		}
+	});
+};
+
+
+
+$(document).on('click','input[name=btnDown]', function() {
+	location.href = "http://localhost:3000/fileDownload?fileName="+$(this).attr('id');
+});	 
+	 
+	
+ function deletePage(seq) {
+	 if (confirm("정말 삭제하시겠습니까?") == true){    //확인
+		 
+		 $.ajax({
+			 url:"http://192.168.0.231:3000/deletePds",
+				type:"post",
+				data:{seq:seq},
+				success:function(data){
+					if(data=="suc") {
+						alert('정상적으로 삭제되었습니다.');
+						location.href="pdsList.html";
+					}
+				},
+				error:function(){
+					alert("error");
+				}
+			 
+		 });
+		 
+	 }else{   //취소
+	     return false;
+	 }
+}
+
+
+
+
+	
+</script>
+</body>
+</html>

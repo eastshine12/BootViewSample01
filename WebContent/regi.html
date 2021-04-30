@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="center">
+<table class="table table-bordered" border="1">
+	<tr>
+		<td>아이디</td>
+		<td>
+			<input type="text" name="id" id="_id" size="20">
+			<button type="button" class="btn btn-secondary" id="btn">중복확인</button>
+		</td>
+	</tr>
+	<tr>
+		<td>패스워드</td>
+		<td>
+			<input type="password" name="pwd" id="_pwd" size="20">
+		</td>
+	</tr>
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" name="name" id="_name" size="20">
+		</td>
+	</tr>
+	<tr>
+		<td>이메일</td>
+		<td>
+		<input type="text" name="email" id="_email" size="20">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" class="btn btn-primary" id="btn2" value="회원가입">
+		</td>
+	</tr>
+
+</table>
+</div>
+
+</body>
+
+
+<script type="text/javascript">
+
+
+$(function () {
+	$('#btn').click(function() {
+		$.ajax({
+			url:"http://192.168.0.231:3000/idCheck",
+			type:"post",
+			data:{
+					"id":$('#_id').val()
+				},
+			
+			success:function(data){
+  				if(data == "suc") {
+					alert("사용가능 합니다.");
+				}
+				else {
+					alert("존재하는 ID가 있습니다.");
+					$('#_id').val("");
+				}  
+				
+			},
+			error:function(){
+				alert("error");
+			},
+			complete:function(){
+			}
+			
+		});
+		
+	});
+	
+});
+
+
+$(function () {
+	$('#btn2').click(function() {
+		$.ajax({
+			url: "http://192.168.0.231:3000/regi",
+			type: "post",
+			data: {
+				"id":$('#_id').val(),
+				"pwd":$('#_pwd').val(),
+				"name":$('#_name').val(),
+				"email":$('#_email').val()
+			},
+			success: function(data) {
+				if(data == "suc") {
+					alert("회원가입 완료");
+					location.href = "login.html";
+				} else {
+					alert("회원가입 실패");
+					location.href = "regi.html";
+				}
+			},
+			error: function() {
+				alert("가입에러");
+			}
+		});
+	});
+});
+
+</script>
+
+
+</html>

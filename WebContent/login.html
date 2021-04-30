@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- css -->
+<link rel="stylesheet" type="text/css" href="/css/initial.css">
+<link rel="stylesheet" type="text/css" href="/css/table.css">
+<link rel="stylesheet" type="text/css" href="/css/button.css">
+<title>Insert title here</title>
+</head>
+<body>
+<div id="main_wrap">
+	<div id="middle_wrap">
+		<div id="content_wrap">
+			<div style="width: 502px; height: 166px; margin-left: auto; margin-right: auto;
+						position: relative; top: 100px;">
+				<div class="login_title_warp">
+					<div style="margin-top: 15px">
+						<h2>My Home Page</h2>
+					</div>			
+				</div>
+				
+				<div id="login_wrap">
+					<form action="loginAf.do" name="frmForm" id="_frmFrom" method="post">
+						<table class="content_table" style="width: 75%">
+							<colgroup>
+								<col style="width: 30%">
+								<col style="width: 70%">
+							</colgroup>
+							<tr>
+								<th style="background: #eeeeee; color: #3e5fba">아이디</th>
+								<td>&nbsp;
+									<input type="text" id="_userId" name="id" size="20px" style="border: 1px solid #dddddd" placeholder="ID">
+									<input type="checkbox" id="chk_save_id">ID 저장
+								</td>
+							</tr>
+							<tr>
+								<th style="background: #eeeeee; color: #3e5fba">패스워드</th>
+								<td>&nbsp;
+									<input type="password" id="_pwd" name="pwd" size="20px" style="border: 1px solid #dddddd" placeholder="Password">
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2" style="height: 20px; text-align: center;">
+									<span>
+										<a href="#none" id="_btnlogin" title="로그인">
+											<img alt="" src="./image/login_btn.jpg">
+										</a>
+										
+										<a href="#none" id="_btnRegi" title="회원가입">
+											<img alt="" src="./image/regi.jpg">
+										</a>
+									</span>
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>		
+		</div>	
+	</div>
+</div>
+</body>
+
+
+<script type="text/javascript">
+
+$('#_btnlogin').click(function() {
+	
+	let id = $('#_userId').val();
+	let pwd = $('#_pwd').val();
+	
+	$.ajax({
+		url:"http://192.168.0.231:3000/login",
+		type:"post",
+		data:{
+			id:id,
+			pwd:pwd
+		},
+		success:function(id){
+			sessionStorage.setItem("login", id);
+			location.href = "bbsList.html";
+		},
+		error:function(){
+			alert('ajax error');
+		}
+	});
+});
+
+
+$('#_btnRegi').click(function() {
+	location.href = "regi.html";
+})
+
+
+</script>
+
+
+</html>

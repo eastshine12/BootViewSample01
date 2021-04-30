@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<!-- BootStrap -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div align="center">
+	<form id="upload_frm">
+	<input type="hidden" name="seq" id="_seq">
+		<table class="table" border ="1" >
+			<tr>
+				<th>아이디</th>
+				<td style="padding-left: 10px" id="_id"></td>
+			</tr>
+			<tr>
+				<th>제목</th>
+				<td>
+				<input type="text" size="50" id="_title" name="title">
+				</td>
+			</tr>
+			<tr>
+				<th>파일</th>
+				<td style="text-align: left;" id="fileName">
+					<input type="file" name='uploadFile'>
+				</td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td>
+				<textarea rows="20" cols="100" id="_content" name="content"></textarea>
+				</td>
+			</tr>
+		
+		</table>
+		<br><br>
+	<input type="button" id="updateBtn" class="btn btn-primary" value="글수정">
+	<input type="button" value="취소" class="btn btn-secondary" onclick="backPage()">
+</form>
+</div>
+
+
+<script type="text/javascript">
+
+let sessionId = sessionStorage.getItem("login");
+
+function getParameter(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+let seq = getParameter("seq");
+$('#_seq').val(seq);
+
+
+$.ajax({
+	url:"http://192.168.0.231:3000/getPdsDetail",
+	type:"post",
+	data:{seq:seq},
+	success:function(data){
+		$('#_id').text(data.id);
+		$('#_title').val(data.title);
+		$('#fileName').prepend(data.filename);
+		$('#_content').text(data.content);
+		$('#_btnDown').attr("name", data.newFilename);
+		$('img').attr("src", "D:\\springBootSamples\\SpringSample\\src\\main\\webapp\\upload\\"+data.newFilename);
+	},
+	error:function(){
+		alert("error");
+	}
+});
+
+
+$(document).ready(function() {
+	
+	$('#updateBtn').click(function() {
+		
+		$.ajax({
+			url:"http://localhost:3000/fileUpdate",
+			type:"post",
+			data: new FormData($('#upload_frm')[0]),
+			enctype:"multipart/form-data",
+			processData:false,
+			contentType:false,
+			cache:false,
+			success:function(data){
+				if(data == "suc") {
+					alert("수정 완료");
+					location.href = "pdsDetail.html?seq="+seq;
+				}
+				else {
+					alert("수정 실패");
+				}  
+			},
+			error:function(){
+				alert('error');
+			}
+		});
+	});
+	
+});
+
+
+function backPage() {
+	location.href = "pdsDetail.html?seq="+seq;
+}
+
+
+
+
+</script>
+
+
+</body>
+</html>
