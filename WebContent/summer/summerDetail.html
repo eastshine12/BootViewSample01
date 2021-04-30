@@ -9,10 +9,10 @@
 <!-- BootStrap -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<!-- css -->
-<link rel="stylesheet" type="text/css" href="/css/initial.css">
-<link rel="stylesheet" type="text/css" href="/css/table.css">
-<link rel="stylesheet" type="text/css" href="/css/button.css">
+<!-- summer -->
+<script src="../js/summernote/summernote-lite.js"></script>
+<script src="../js/summernote/lang/summernote-ko-KR.js"></script>
+<link rel="stylesheet" href="../css/summernote/summernote-lite.css">
 </head>
 <body>
 
@@ -42,7 +42,7 @@
 		<tr>
 			<th>내용</th>
 			<td>
-			<textarea rows="20" cols="100" name="content" id="_content" readonly></textarea>
+			<div id="_content"></div>
 			</td>
 		</tr>
 	
@@ -54,12 +54,12 @@
 		<button type="button" id="repleBtn" class="btn btn-secondary" onclick="answerBbs()">답글</button>
 		<input type="button" id="delBtn" class="btn btn-secondary" value="글삭제" onclick="deletePage()">
 		<input type="button" id="updateBtn" class="btn btn-secondary" value="글수정" onclick="updatePage()">
-		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='bbsList.html'">
+		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='summerList.html'">
 	</div>
 	
 	<div id="youBtn">
 		<button type="button" class="btn btn-secondary" onclick="answerbbs('<%=bbs.getSeq() %>')">답글</button>
-		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='bbsList.html'">
+		<input type="button" class="btn btn-secondary" value="글목록" onclick="location.href='summerList.html'">
 	</div>
 	
 </div>
@@ -101,7 +101,7 @@ $.ajax({
 		$('#_wdate').text(data.wdate);
 		$('#_readcount').text(data.readcount);
 		$('#_title').text(data.title);
-		$('#_content').text(data.content);
+		$('#_content').html(data.content);
 		
 		if(sessionId == data.id) {
 			$('#myBtn').show();
